@@ -24,13 +24,17 @@ def create_game(df, home, away, date_val, window):
                   'away_tackles': 0, 'home_ints': 0, 'away_ints': 0, 'home_aerials': 0, 'away_aerials': 0, 'home_clearances': 0, 'away_clearances': 0, 'home_offsides': 0, 'away_offsides': 0, 'home_goal_kicks': 0, 'away_goal_kicks': 0,
                   'home_throwins': 0, 'away_throwins': 0, 'home_longballs': 0, 'away_longballs': 0,}
 
-   
     # Extract and sum up previous 5 games from Home team
     num_found = 0
     for index, data in df.iterrows():
         if int(data['date_value']) >= int(date_val): continue  # Skip until we get to the point in time we are predicting for
         if num_found >= window: break
-
+        
+        # If there isnt enough games in current season to total "window" games update window to fit
+        # Stops from getting previous 5 games from previous season
+        if data['week'] < window-num_found:
+            window = data['week']
+            
         if data['home_team'] == home:
             new_game['home_possession'] += data['home_possession']
             new_game['home_pass_acc'] += data['home_pass_acc']
@@ -74,7 +78,10 @@ def create_game(df, home, away, date_val, window):
     for index, data in df.iterrows():
         if int(data['date_value']) >= int(date_val): continue  # Skip until we get to the point in time we are predicting for
         if num_found >= window: break
-
+        
+        if data['week'] < window-num_found:
+            window = data['week']
+            
         if data['home_team'] == away:
             new_game['away_possession'] += data['home_possession']
             new_game['away_pass_acc'] += data['home_pass_acc']
